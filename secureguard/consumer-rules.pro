@@ -1,16 +1,16 @@
 # Consumer ProGuard rules - Applied to apps using this library
 
-# Keep ALL public API classes and members
--keep public class com.secureguard.sdk.** {
-    public *;
-}
+# Keep ALL classes in SDK package
+-keep class com.secureguard.sdk.** { *; }
+-keepclassmembers class com.secureguard.sdk.** { *; }
 
-# Keep util classes
--keep public class com.secureguard.sdk.util.** {
-    public *;
-}
+# Preserve all annotations
+-keepattributes *Annotation*
 
-# Keep BackgroundSecurityHelper specifically
--keep public class com.secureguard.sdk.util.BackgroundSecurityHelper {
-    public *;
+# Keep Kotlin metadata
+-keep class kotlin.Metadata { *; }
+
+# Keep companion objects
+-keepclassmembers class * {
+    ** Companion;
 }
