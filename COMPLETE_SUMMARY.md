@@ -61,13 +61,13 @@
 2. **Push Code to GitHub**
    ```bash
    cd /Users/mariganesh/Documents/Projects/SecureGuard
-   git remote add origin https://github.com/YOUR_USERNAME/SecureGuard.git
+   git remote add origin https://github.com/mariganesh55/SecureGuard.git
    git push -u origin main
    ```
 
 3. **Create Release**
    ```
-   Go to: https://github.com/YOUR_USERNAME/SecureGuard/releases/new
+   Go to: https://github.com/mariganesh55/SecureGuard/releases/new
    Tag: 1.0.0
    Title: SecureGuard v1.0.0 - Initial Release
    Click: Publish release
@@ -75,14 +75,14 @@
 
 4. **Build on JitPack**
    ```
-   Visit: https://jitpack.io/#YOUR_USERNAME/SecureGuard/1.0.0
+   Visit: https://jitpack.io/#mariganesh55/SecureGuard/1.0.0
    Click: Get it
    Wait 2-5 minutes for build
    ```
 
 5. **✅ Done! Your library is live at:**
    ```
-   https://jitpack.io/#YOUR_USERNAME/SecureGuard/1.0.0
+   https://jitpack.io/#mariganesh55/SecureGuard/1.0.0
    ```
 
 **See detailed guide:** [GITHUB_PUBLISH_STEPS.md](GITHUB_PUBLISH_STEPS.md)

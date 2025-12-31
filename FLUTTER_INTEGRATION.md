@@ -55,8 +55,8 @@ android {
 }
 
 dependencies {
-    // SecureGuard SDK (replace YOUR_USERNAME with your GitHub username)
-    implementation 'com.github.YOUR_USERNAME:SecureGuard:1.0.0'
+    // SecureGuard SDK from JitPack
+    implementation 'com.github.mariganesh55:SecureGuard:1.0.0'
     
     // Required dependencies
     implementation 'androidx.core:core-ktx:1.12.0'

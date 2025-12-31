@@ -35,9 +35,9 @@ package com.yourcompany.yourapp
 
 ### Step 4: Update build.gradle
 
-Replace `YOUR_USERNAME` with your GitHub username:
+Add SecureGuard dependency (already configured):
 ```gradle
-implementation 'com.github.YOUR_USERNAME:SecureGuard:1.0.0'
+implementation 'com.github.mariganesh55:SecureGuard:1.0.0'
 ```
 
 ### Step 5: Run
