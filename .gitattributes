@@ -1,0 +1,4 @@
+*.md linguist-documentation
+*.kt linguist-language=Kotlin
+*.cpp linguist-language=C++
+*.gradle linguist-language=Groovy
