@@ -35,8 +35,9 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled false  // Disabled - library already uses string obfuscation
+            // Don't minify library code - consumers can minify if needed
+            // The library uses source-level obfuscation instead
         }
         debug {
             minifyEnabled false

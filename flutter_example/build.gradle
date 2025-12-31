@@ -68,7 +68,7 @@ flutter {
 
 dependencies {
     // SecureGuard SDK from JitPack
-    implementation 'com.github.mariganesh55:SecureGuard:1.0.2'
+    implementation 'com.github.mariganesh55:SecureGuard:1.0.3'
     
     // Or use local AAR during development:
     // implementation files('libs/secureguard-release.aar')
