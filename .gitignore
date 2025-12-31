@@ -1,0 +1,39 @@
+.gradle/
+.idea/
+*.iml
+local.properties
+build/
+captures/
+.externalNativeBuild
+.cxx/
+*.apk
+*.aab
+*.aar
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+release/
+
+# Native
+*.o
+*.so
+*.a
+CMakeCache.txt
+cmake_install.cmake
+
+# Secrets
+secrets.properties
+key.properties
+*.jks
+*.keystore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+*.swp
+*~
