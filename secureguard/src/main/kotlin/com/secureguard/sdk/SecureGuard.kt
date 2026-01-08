@@ -124,8 +124,16 @@ class SecureGuard private constructor(
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onAppResumed() {
         android.util.Log.d(TAG, "App resumed - performing security check")
+        
+        // CRITICAL: Trigger native security checks (including developer mode via JNI)
+        try {
+            NativeSecurityBridge.onAppResume()
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "Native resume check failed", e)
+        }
+        
+        // Also perform comprehensive Kotlin scan
         scope.launch {
-            // Use comprehensive scan (no flags!)
             performComprehensiveScan()
         }
     }

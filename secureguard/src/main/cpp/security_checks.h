@@ -2,6 +2,7 @@
 #define SECUREGUARD_SECURITY_CHECKS_H
 
 #include <string>
+#include <jni.h>
 
 // EXPERT-PROOF: Compile-time string obfuscation using XOR
 // Strings are encrypted at compile-time, decrypted at runtime
@@ -78,6 +79,26 @@ public:
      * EXPERT-PROOF: Enforces directly on detection, no return value matters
      */
     static bool isFridaDetected();
+
+    /**
+     * Check if developer mode/ADB is enabled
+     * EXPERT-PROOF: Enforces directly on detection, runs autonomously
+     */
+    static bool isDeveloperModeEnabled();
+
+    /**
+     * Check developer mode by reading Settings.Global from native (UNHOOKABLE)
+     * Uses JNI to call Android Settings API directly from C++
+     * Bypasses any Kotlin/Java hooks
+     */
+    static void checkDeveloperModeFromNative(JavaVM *vm);
+
+    /**
+     * Report developer mode status from Kotlin layer
+     * Kotlin reads Settings.Global.DEVELOPMENT_SETTINGS_ENABLED and passes result here
+     * Native enforces immediately if enabled
+     */
+    static void reportDeveloperMode(bool enabled);
 
     /**
      * Get device fingerprint

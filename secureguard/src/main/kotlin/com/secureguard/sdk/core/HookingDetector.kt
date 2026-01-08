@@ -190,12 +190,27 @@ object HookingDetector {
      * Returns list of detected hooking frameworks
      */
     fun getAllHookingIndicators(context: Context): List<String> {
+        android.util.Log.e("HookingDetector", "===== getAllHookingIndicators() CALLED =====")
         val indicators = mutableListOf<String>()
         
-        if (detectFrida(context)) indicators.add("Frida framework detected")
-        if (detectXposed(context)) indicators.add("Xposed framework detected")
-        if (detectLSPosed(context)) indicators.add("LSPosed framework detected")
-        if (detectSubstrate()) indicators.add("Cydia Substrate detected")
+        val fridaResult = detectFrida(context)
+        android.util.Log.e("HookingDetector", "detectFrida() = $fridaResult")
+        if (fridaResult) indicators.add("Frida framework detected")
+        
+        val xposedResult = detectXposed(context)
+        android.util.Log.e("HookingDetector", "detectXposed() = $xposedResult")
+        if (xposedResult) indicators.add("Xposed framework detected")
+        
+        val lsposedResult = detectLSPosed(context)
+        android.util.Log.e("HookingDetector", "detectLSPosed() = $lsposedResult")
+        if (lsposedResult) indicators.add("LSPosed framework detected")
+        
+        val substrateResult = detectSubstrate()
+        android.util.Log.e("HookingDetector", "detectSubstrate() = $substrateResult")
+        if (substrateResult) indicators.add("Cydia Substrate detected")
+        
+        android.util.Log.e("HookingDetector", "Total indicators: ${indicators.size}")
+        android.util.Log.e("HookingDetector", "Indicators: $indicators")
         
         return indicators
     }

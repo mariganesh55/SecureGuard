@@ -15,6 +15,9 @@ object IntegrityChecker {
     
     private const val TAG = "IntegrityChecker"
     
+    // Helper extension for formatting doubles
+    private fun Double.format(decimals: Int): String = "%.${decimals}f".format(this)
+    
     /**
      * Verify APK signature hasn't been modified
      * Compares current signature with expected signature hash
@@ -168,12 +171,30 @@ object IntegrityChecker {
             // In normal circumstances, APK shouldn't be modified after installation
             val lastModified = apkFile.lastModified()
             val installTime = packageInfo.firstInstallTime
+            val updateTime = packageInfo.lastUpdateTime
             
-            // Allow some tolerance (1 hour) for system updates
-            val isModified = (lastModified - installTime) > 3600000
+            // Log timestamps for debugging
+            val timeDiff = lastModified - installTime
+            val hoursDiff = timeDiff / 3600000.0
+            android.util.Log.d(TAG, "APK Timestamps:")
+            android.util.Log.d(TAG, "  Install Time: $installTime (${java.util.Date(installTime)})")
+            android.util.Log.d(TAG, "  Update Time: $updateTime (${java.util.Date(updateTime)})")
+            android.util.Log.d(TAG, "  APK Modified: $lastModified (${java.util.Date(lastModified)})")
+            android.util.Log.d(TAG, "  Time Diff: ${hoursDiff.format(2)} hours")
+            
+            // APK modification time should be close to install/update time
+            // Use the latest of install or update time
+            val referenceTime = maxOf(installTime, updateTime)
+            val actualDiff = lastModified - referenceTime
+            
+            // Allow 1 hour tolerance for system updates/optimizations
+            val isModified = actualDiff > 3600000
             
             if (isModified) {
-                android.util.Log.w(TAG, "APK has been modified after installation")
+                val refHours = (actualDiff / 3600000.0)
+                android.util.Log.w(TAG, "⚠️ APK has been modified ${refHours.format(2)} hours after installation/update")
+            } else {
+                android.util.Log.i(TAG, "✅ APK timestamp is valid (within tolerance)")
             }
             
             !isModified

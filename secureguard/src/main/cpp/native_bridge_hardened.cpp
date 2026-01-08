@@ -19,8 +19,13 @@ static bool initialized = false;
 static pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Auto-initialize on library load - managed layer doesn't control this
-__attribute__((constructor))
-static void auto_initialize() {
+// DISABLED FOR FLUTTER EXAMPLE: Constructor causes crashes
+// __attribute__((constructor))
+static void auto_initialize()
+{
+    // DISABLED: Just return immediately
+    return;
+    /*
     pthread_mutex_lock(&init_mutex);
     if (!initialized) {
         // Start continuous monitoring immediately
@@ -28,6 +33,7 @@ static void auto_initialize() {
         initialized = true;
     }
     pthread_mutex_unlock(&init_mutex);
+    */
 }
 
 // REMOVED: All boolean-returning functions
@@ -37,20 +43,22 @@ static void auto_initialize() {
 // It either succeeds silently or terminates the process
 extern "C" JNIEXPORT void JNICALL
 Java_com_secureguard_sdk_SecurityManager_nativeInitialize(
-        JNIEnv* env,
-        jobject /* this */) {
-    
+    JNIEnv *env,
+    jobject /* this */)
+{
+
     // First, protect ourselves
     self_protect::initialize(env);
-    
+
     // Start monitoring (if not already started)
     pthread_mutex_lock(&init_mutex);
-    if (!initialized) {
+    if (!initialized)
+    {
         monitor::initialize();
         initialized = true;
     }
     pthread_mutex_unlock(&init_mutex);
-    
+
     // NO RETURN VALUE - managed layer doesn't know outcome
     // If we reach here, environment is clean (for now)
     // Monitoring continues in background forever
@@ -68,8 +76,9 @@ Java_com_secureguard_sdk_SecurityManager_nativeInitialize(
 // But it doesn't return anything - it just acts
 extern "C" JNIEXPORT void JNICALL
 Java_com_secureguard_sdk_SecurityManager_nativeEnforce(
-        JNIEnv* env,
-        jobject /* this */) {
+    JNIEnv *env,
+    jobject /* this */)
+{
     // Silent termination
     enforcement::terminate_process();
     // Never returns
@@ -80,20 +89,22 @@ Java_com_secureguard_sdk_SecurityManager_nativeEnforce(
 // Returns void, not boolean
 extern "C" JNIEXPORT void JNICALL
 Java_com_secureguard_sdk_SecurityManager_nativeVerifyMonitoring(
-        JNIEnv* env,
-        jobject /* this */) {
-    
+    JNIEnv *env,
+    jobject /* this */)
+{
+
     // If monitoring is not initialized, that's a problem
-    if (!initialized) {
+    if (!initialized)
+    {
         enforcement::random_enforcement();
     }
-    
+
     // Verify JNI hasn't been hooked
     self_protect::verify_jni_integrity(env);
-    
+
     // Scan for new hooking libraries
     self_protect::scan_loaded_libraries();
-    
+
     // NO RETURN VALUE
 }
 
@@ -101,23 +112,29 @@ Java_com_secureguard_sdk_SecurityManager_nativeVerifyMonitoring(
 // But doesn't return status
 extern "C" JNIEXPORT void JNICALL
 Java_com_secureguard_sdk_SecurityManager_nativePeriodicCheck(
-        JNIEnv* env,
-        jobject /* this */) {
-    
+    JNIEnv *env,
+    jobject /* this */)
+{
+
     // Quick root check
     if (access("/system/bin/su", F_OK) == 0 ||
-        access("/system/xbin/su", F_OK) == 0) {
+        access("/system/xbin/su", F_OK) == 0)
+    {
         enforcement::delayed_kill(rand() % 5);
     }
-    
+
     // Quick debugger check
-    FILE* status = fopen("/proc/self/status", "r");
-    if (status) {
+    FILE *status = fopen("/proc/self/status", "r");
+    if (status)
+    {
         char line[256];
-        while (fgets(line, sizeof(line), status)) {
-            if (strncmp(line, "TracerPid:", 10) == 0) {
+        while (fgets(line, sizeof(line), status))
+        {
+            if (strncmp(line, "TracerPid:", 10) == 0)
+            {
                 int pid = atoi(line + 10);
-                if (pid != 0) {
+                if (pid != 0)
+                {
                     fclose(status);
                     enforcement::corrupt_state();
                     return;
@@ -126,7 +143,7 @@ Java_com_secureguard_sdk_SecurityManager_nativePeriodicCheck(
         }
         fclose(status);
     }
-    
+
     // NO RETURN VALUE
     // Managed layer doesn't know if checks passed or failed
 }
@@ -164,7 +181,7 @@ Java_com_secureguard_sdk_SecurityManager_nativePeriodicCheck(
 // WHAT THIS DOESN'T DO:
 // - Stop a determined attacker with full device control
 // - Make the app "unbreakable"
-// 
+//
 // WHAT IT DOES DO:
 // - Increases attacker effort from minutes to hours/days
 // - Makes bypasses fragile and unreliable

@@ -62,6 +62,12 @@ object NativeSecurityBridge {
     external fun checkFridaNative()
     
     /**
+     * EXPERT-PROOF: Directly trigger security violation enforcement
+     * Used when Kotlin detects a threat and needs immediate native enforcement
+     */
+    external fun enforceViolation(reason: String)
+    
+    /**
      * EXPERT-PROOF: Trigger comprehensive check - NO RETURN VALUE
      * All checks run autonomously, enforcement happens in background threads
      * Pentester can hook this entire function - doesn't matter!
@@ -89,4 +95,18 @@ object NativeSecurityBridge {
      * Get device fingerprint
      */
     external fun getDeviceFingerprint(): String
+    
+    /**
+     * Report developer mode status to native layer
+     * Kotlin reads Settings.Global.DEVELOPMENT_SETTINGS_ENABLED and passes result here
+     * Native enforces immediately if enabled
+     * EXPERT-PROOF: Enforcement happens in native, Kotlin just provides the flag
+     */
+    external fun reportDeveloperMode(enabled: Boolean)
+    
+    /**
+     * Called when app resumes - triggers all security checks
+     * PENTESTER-PROOF: Re-checks developer mode via JNI (unhookable)
+     */
+    external fun onAppResume()
 }

@@ -144,16 +144,20 @@ internal object AntiTamperEngine {
      * Detects process manipulation, injection
      */
     private fun checkProcessIntegrity(context: Context): CheckResult {
+        android.util.Log.e("AntiTamperEngine", "===== CHECK 3: Process Integrity =====")
         var severityScore = 0
         val details = mutableListOf<String>()
         val threats = mutableListOf<ThreatType>()
         
         // Check for injected libraries
         val injectedLibs = detectInjectedLibraries()
+        android.util.Log.e("AntiTamperEngine", "detectInjectedLibraries() returned: ${injectedLibs.size} libs")
+        android.util.Log.e("AntiTamperEngine", "Injected libraries: $injectedLibs")
         if (injectedLibs.isNotEmpty()) {
             severityScore += 40
             details.add("Injected libs: ${injectedLibs.size}")
             threats.add(ThreatType.HOOKING_DETECTED)
+            android.util.Log.e("AntiTamperEngine", "ADDED HOOKING_DETECTED due to injected libs!")
         }
         
         // Check process memory
@@ -185,24 +189,29 @@ internal object AntiTamperEngine {
      * Detects memory patching, code modification
      */
     private fun checkMemoryIntegrity(context: Context): CheckResult {
+        android.util.Log.e("AntiTamperEngine", "===== CHECK 4: Memory Integrity =====")
         var severityScore = 0
         val details = mutableListOf<String>()
         val threats = mutableListOf<ThreatType>()
         
         // Verify code section integrity
         val codeHash = calculateCodeHash()
+        android.util.Log.e("AntiTamperEngine", "Code hash: $codeHash")
         if (!verifyCodeHash(codeHash)) {
             severityScore += 60
             details.add("Code section modified")
             threats.add(ThreatType.TAMPERING_DETECTED)
+            android.util.Log.e("AntiTamperEngine", "ADDED TAMPERING_DETECTED (code hash mismatch)")
         }
         
         // Check for memory hooks
         val memoryHooks = detectMemoryHooks()
+        android.util.Log.e("AntiTamperEngine", "detectMemoryHooks() returned: $memoryHooks")
         if (memoryHooks > 0) {
             severityScore += 40
             details.add("Memory hooks: $memoryHooks")
             threats.add(ThreatType.HOOKING_DETECTED)
+            android.util.Log.e("AntiTamperEngine", "ADDED HOOKING_DETECTED (memory hooks found: $memoryHooks)")
         }
         
         return CheckResult(
@@ -317,6 +326,7 @@ internal object AntiTamperEngine {
     // ================ Helper Methods (No Flag Checks) ================
     
     private fun detectInjectedLibraries(): List<String> {
+        android.util.Log.e("AntiTamperEngine", "===== detectInjectedLibraries() CALLED =====")
         val suspicious = mutableListOf<String>()
         try {
             val mapsFile = java.io.File("/proc/self/maps")
@@ -324,15 +334,26 @@ internal object AntiTamperEngine {
                 mapsFile.readLines().forEach { line ->
                     // Check for suspicious library names
                     when {
-                        line.contains("frida") -> suspicious.add("frida")
-                        line.contains("xposed") -> suspicious.add("xposed")
-                        line.contains("substrate") -> suspicious.add("substrate")
+                        line.contains("frida", ignoreCase = true) -> {
+                            android.util.Log.e("AntiTamperEngine", "Found frida in: $line")
+                            suspicious.add("frida")
+                        }
+                        line.contains("xposed", ignoreCase = true) -> {
+                            android.util.Log.e("AntiTamperEngine", "Found xposed in: $line")
+                            suspicious.add("xposed")
+                        }
+                        line.contains("substrate", ignoreCase = true) -> {
+                            android.util.Log.e("AntiTamperEngine", "Found substrate in: $line")
+                            suspicious.add("substrate")
+                        }
                     }
                 }
             }
         } catch (e: Exception) {
             // Silent fail
+            android.util.Log.e("AntiTamperEngine", "detectInjectedLibraries error: ${e.message}")
         }
+        android.util.Log.e("AntiTamperEngine", "Injected libraries found: ${suspicious.size} - $suspicious")
         return suspicious
     }
     
@@ -369,20 +390,34 @@ internal object AntiTamperEngine {
     }
     
     private fun detectMemoryHooks(): Int {
+        android.util.Log.e("AntiTamperEngine", "===== detectMemoryHooks() CALLED =====")
+        // DISABLED: The previous check (rw-p && ---p) produces false positives
+        // These are normal memory protection flags present in every Android process
+        // A proper memory hook detection would need to:
+        // 1. Check for suspicious library names in memory regions
+        // 2. Validate GOT/PLT table integrity
+        // 3. Detect inline hooks in function prologues
+        // For now, return 0 to avoid false positives
+        android.util.Log.e("AntiTamperEngine", "Memory hook detection disabled (was producing false positives)")
+        return 0
+        
+        /* Previous false positive code:
         var count = 0
         try {
-            // Check for common hook patterns in memory
             val mapsFile = java.io.File("/proc/self/maps")
             if (mapsFile.exists()) {
                 val content = mapsFile.readText()
-                if (content.contains("rw-p") && content.contains("---p")) {
-                    count++
+                val hasRwp = content.contains("rw-p")
+                val hasNoAccess = content.contains("---p")
+                if (hasRwp && hasNoAccess) {
+                    count++  // FALSE POSITIVE - these flags are normal!
                 }
             }
         } catch (e: Exception) {
-            // Silent fail
+            android.util.Log.e("AntiTamperEngine", "detectMemoryHooks error: ${e.message}")
         }
         return count
+        */
     }
     
     private fun isVpnActive(context: Context): Boolean {
